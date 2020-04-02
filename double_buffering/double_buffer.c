@@ -47,7 +47,6 @@ void double_buffer_switch(double_buffer_td *p_buffer, void **p_buf_active, void 
 void *reader_thread(void *vargp)
 {
     volatile double_buffer_td *test_buffer = vargp;
-    uint8_t *p_buf_active = test_buffer->active;
     uint8_t *p_buf_passive = test_buffer->passive;
     uint32_t i = 0;
     while(1)
