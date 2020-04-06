@@ -2,47 +2,9 @@
 #include <stdint.h>
 #include <unistd.h>
 #include <pthread.h>
+#include <double_buffering.h>
 
 #define BUF_SIZE 64
-
-typedef struct double_buffer_struct
-{
-    int switch_flag;
-    uint32_t buf_size;
-    uint32_t buf_pos_active;
-    uint32_t buf_pos_passive;
-    void *buffer_a;
-    void *buffer_b;
-    void *active;
-    void *passive;
-
-} double_buffer_td;
-
-void double_buffer_init(double_buffer_td *p_buffer,
-                        uint32_t buf_size,
-                        void *buffer_a,
-                        void *buffer_b,
-                        void **p_buf_active,
-                        void **p_buf_passive)
-{
-    p_buffer->switch_flag = 0;
-    p_buffer->buf_size = buf_size;
-    p_buffer->buf_pos_active = 0;
-    p_buffer->buf_pos_passive = 0;
-    p_buffer->buffer_a = buffer_a;
-    p_buffer->buffer_b = buffer_b;
-    p_buffer->active = p_buffer->buffer_a;
-    p_buffer->passive = p_buffer->buffer_b;
-    *p_buf_active = p_buffer->active;
-    *p_buf_passive = p_buffer->passive;
-}
-
-void double_buffer_switch(double_buffer_td *p_buffer, void **p_buf_active, void **p_buf_passive)
-{
-    void *tmp = p_buffer->active;
-    *p_buf_active = p_buffer->active = p_buffer->passive;
-    *p_buf_passive = p_buffer->passive = tmp;
-}
 
 void *reader_thread(void *vargp)
 {
@@ -67,7 +29,7 @@ void *reader_thread(void *vargp)
         {
             printf(".");
         }
-        usleep(1000000);
+        usleep(200000);
         printf("\n=============\n\n");
     }
     return NULL;
@@ -128,7 +90,7 @@ int main()
     pthread_t reader_thread_id;
     pthread_t writer_thread_id;
 
-    double_buffer_init((double_buffer_td *)&test_buffer, BUF_SIZE, buffer_a, buffer_b, (void**)&p_buf_active, (void**)&p_buf_passive);
+    double_buffer_init((double_buffer_td *)&test_buffer, BUF_SIZE, 0, buffer_a, buffer_b, (void**)&p_buf_active, (void**)&p_buf_passive);
 
     // printf("%d %d %d\n", p_buf_active[0], p_buf_active[1], p_buf_active[2]);
     // printf("%d %d %d\n", p_buf_passive[0], p_buf_passive[1], p_buf_passive[2]);
